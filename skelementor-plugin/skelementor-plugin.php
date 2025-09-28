@@ -37,22 +37,16 @@ defined('ABSPATH') or die('You shall not pass!');
 class SkelementorPlugin {
   
     function __construct() {
-        add_action('init', array($this, 'custom_post_type')); //so we search for the function right in this class, hence the $this variable.
-        //but calling the add_action is often unsafe and may fail (rarely ever does), so just in case, call it in the activate function directly too
+        add_action('init', array($this, 'custom_post_type'));
     }
 
 
     function activate() {
-        // generate a CPT (custom post type)
-        //we cannot call the function directly (as this is oop) as it's not globally defined, so we call it like this:
         $this -> custom_post_type();
-
-        // flush rewrite rules
-        flush_rewrite_rules(); //we can simply callthis function because it's defined globally.
+        flush_rewrite_rules();
     }
     
     function deactivate() {
-        // flush rewrite rules
         flush_rewrite_rules();
     }
 
@@ -62,8 +56,8 @@ class SkelementorPlugin {
     }
 
     function custom_post_type() {
-        register_post_type( 'book', ['public' => true, 'label' => 'Books']); //this creates a custom post type (related to wordpress, figure out what this is later.)
-    } //to call this function on initialization we have to use wordpress's add_action hook, but since that's a part of procedural programming, not oop, we must call it in the constructor.
+        register_post_type( 'book', ['public' => true, 'label' => 'Books']);
+    }
 }
 
 if ( class_exists('SkelementorPlugin')) {
@@ -76,4 +70,6 @@ register_activation_hook(__FILE__, array($skelementorPlugin, 'activate'));
 //on deactivation
 register_deactivation_hook(__FILE__, array($skelementorPlugin, 'deactivate'));
 
-//on uninstall
+//on uninstall (hook gets triggered when the user both deactivates and clicks on delete)
+// register_uninstall_hook(__FILE__, array($skelementorPlugin, 'deactivate')); //this works, but requires it to be a static method, so we have to prefix the functions with static, which is annoying
+//a better way is to create a separate file for uninstalls in this same directory.
