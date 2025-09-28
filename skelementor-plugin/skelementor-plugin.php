@@ -31,10 +31,53 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 Copyright 2005-2015 Automattic, Inc.
 */
 
-//if someone else tries to access, we won't let them. two ways to do it.
+//if someone else tries to access, we won't let them. three ways to do it.
 
 // if ( ! defined('ABSPATH') ) {
 //     die;
 // }
 
 defined('ABSPATH') or die('You shall not pass!');
+
+// if ( ! function_exists('add_action') ) { //could be any function that pre loads
+//     echo 'You shall not pass!';
+//     exit;
+// }
+
+
+class SkelementorPlugin {
+  
+    //constructors in php oop are defined like this, no need to keep, but i am for reference.
+    function __construct() {}
+
+    //the three triggers defined as functions
+    function activate() {
+        //in php, if strings are sent from a function, it has a header already sent error or something, just so yk
+        echo 'The plugin was ativated';
+    }
+    
+    function deactivate() {
+        echo 'The plugin was deactivated';
+    }
+
+    function uninstall() {
+
+    }
+}
+
+//vars in php are prefixed with $
+if ( class_exists('SkelementorPlugin')) {
+    $skelementorPlugin = new SkelementorPlugin(); //basic oop structure
+}
+
+//wordpress triggers stuff on 3 actions by default (hooks that are provided to plugins by default from wordpress),
+
+//on activation
+register_activation_hook(__FILE__, array($skelementorPlugin, 'activate')); //how php works, so, to call a function inside a class, we pass it as an array)
+//in the array, we first pass the class variable where it's initialized, and then the string of the function name that is to be triggered.
+//by writing __FILE__, we ask the hook to only look inside this file regardless of other paths to find the function defined.
+
+//on deactivation
+register_deactivation_hook(__FILE__, array($skelementorPlugin, 'deactivate'));
+
+//on uninstall
