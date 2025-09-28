@@ -52,16 +52,17 @@ class SkelementorPlugin {
 
     //the three triggers defined as functions
     function activate() {
-        //in php, if strings are sent from a function, it has a header already sent error or something, just so yk
-        echo 'The plugin was ativated';
+        // generate a CPT (custom post type)
+        // flush rewrite rules
     }
     
     function deactivate() {
-        echo 'The plugin was deactivated';
+        // flush rewrite rules
     }
 
     function uninstall() {
-
+        // delete CPT 
+        // delete all the plugin data from the DB
     }
 }
 
