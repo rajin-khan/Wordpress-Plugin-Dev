@@ -36,49 +36,28 @@ defined('ABSPATH') or die('You shall not pass!');
 
 class SkelementorPlugin {
 
-    //OOP IN PHP (Refresher)
-
-    //Public (Can be accessed everywhere)
-    //if no access modifiers, assumed to be a public function,
-
-    //Protected
-    //function/method can only be called inside the class itself where it's defined.
-    //can also be called by a class that extends the other class
-
-    //Private
-    //function/method can only be called inside the class itself where it's defined. cannot be accessed by a class that extends it either
-
-    //all this applies to variables too.
-
-    //Static
-    //allows you to use methods without registering the class, comes after access modifiers.
-    //can be called like this ( e.g, if the register function was a public static function, 'SkelementorPlugin::register();' )
-
-    public static function register() {
-        //add_action('admin_enqueue_scripts', array($this, 'enqueue')); 
-        //'$this' won't work as a static function assumes the class isn't initialized, and '$this' variable refers to the current class. 
-        //so, we make enqueue a static function, and call it as such:
-        add_action('admin_enqueue_scripts', array('SkelementorPlugin', 'enqueue')); 
+    function register() {
+        add_action('admin_enqueue_scripts', array($this, 'enqueue'));
     }
 
     protected function create_post_type() {
         add_action('init', array($this, 'custom_post_type'));
     }
 
+    //we are no longer using the main file/function for activation/deactivation, we have delegated the task to separate files.
+    //because of that, we'll have to add some checks at the end (before register_activation/deactivation_hook)
+
+    //we can alternatively also call the activation/deactivation hook like this:
     function activate() {
-        $this -> custom_post_type();
-        flush_rewrite_rules();
-    }
-    
-    function deactivate() {
-        flush_rewrite_rules();
+        require_once plugin_dir_path( __FILE__).'inc/skelementor-plugin-activate.php';
+        SkelementorPlugin::activate();
     }
 
     function custom_post_type() {
         register_post_type( 'book', ['public' => true, 'label' => 'Books']);
     }
 
-    static function enqueue() {
+    function enqueue() {
         wp_enqueue_style( 'mypluginstyle', plugins_url('/assets/mystyle.css', __FILE__));
         wp_enqueue_script( 'mypluginscript', plugins_url('/assets/myscript.js', __FILE__));
     }
@@ -90,7 +69,8 @@ if ( class_exists('SkelementorPlugin')) {
 }
 
 //on activation
-register_activation_hook(__FILE__, array($skelementorPlugin, 'activate'));
+register_activation_hook(__FILE__, array($skelementorPlugin, 'activate')); //alternative way to call static methods shown, now handled in the activate function in class.
 
 //on deactivation
-register_deactivation_hook(__FILE__, array($skelementorPlugin, 'deactivate'));
+require_once plugin_dir_path( __FILE__).'inc/skelementor-plugin-deactivate.php'; //concatenating the directory of where the activation file is located relative to the current file with '.'
+register_deactivation_hook(__FILE__, array('SkelementorPluginDeactivate', 'deactivate')); //now we can call it without initializing the class, as the activate/deactivate methods are now static.
