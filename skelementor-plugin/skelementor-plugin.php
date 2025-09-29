@@ -35,14 +35,34 @@ defined('ABSPATH') or die('You shall not pass!');
 
 
 class SkelementorPlugin {
-  
-    function __construct() {
-        add_action('init', array($this, 'custom_post_type'));
+
+    //OOP IN PHP (Refresher)
+
+    //Public (Can be accessed everywhere)
+    //if no access modifiers, assumed to be a public function,
+
+    //Protected
+    //function/method can only be called inside the class itself where it's defined.
+    //can also be called by a class that extends the other class
+
+    //Private
+    //function/method can only be called inside the class itself where it's defined. cannot be accessed by a class that extends it either
+
+    //all this applies to variables too.
+
+    //Static
+    //allows you to use methods without registering the class, comes after access modifiers.
+    //can be called like this ( e.g, if the register function was a public static function, 'SkelementorPlugin::register();' )
+
+    public static function register() {
+        //add_action('admin_enqueue_scripts', array($this, 'enqueue')); 
+        //'$this' won't work as a static function assumes the class isn't initialized, and '$this' variable refers to the current class. 
+        //so, we make enqueue a static function, and call it as such:
+        add_action('admin_enqueue_scripts', array('SkelementorPlugin', 'enqueue')); 
     }
 
-    function register() {
-        add_action('admin_enqueue_scripts', array($this, 'enqueue')); 
-        //if we need the css to load up in the frontend, not the backend, we use wp_enqueue_scripts instead. check by inspecting the network tab and seeing if you can find the css file.
+    protected function create_post_type() {
+        add_action('init', array($this, 'custom_post_type'));
     }
 
     function activate() {
@@ -54,21 +74,13 @@ class SkelementorPlugin {
         flush_rewrite_rules();
     }
 
-    function uninstall() {
-        // delete CPT 
-        // delete all the plugin data from the DB
-    }
-
     function custom_post_type() {
         register_post_type( 'book', ['public' => true, 'label' => 'Books']);
     }
 
-    // to store javascript and css and stuff, we have to call te enqueue function
-    function enqueue() {
-        // enqueue all our scripts, but the scripts must be stored in a separate folder.
+    static function enqueue() {
         wp_enqueue_style( 'mypluginstyle', plugins_url('/assets/mystyle.css', __FILE__));
-        //custom name of the style, the url for the folder relative to the plugin folder, the place where to start looking from, more options are there but optional
-         wp_enqueue_script( 'mypluginscript', plugins_url('/assets/myscript.js', __FILE__));
+        wp_enqueue_script( 'mypluginscript', plugins_url('/assets/myscript.js', __FILE__));
     }
 }
 
@@ -82,7 +94,3 @@ register_activation_hook(__FILE__, array($skelementorPlugin, 'activate'));
 
 //on deactivation
 register_deactivation_hook(__FILE__, array($skelementorPlugin, 'deactivate'));
-
-//on uninstall (hook gets triggered when the user both deactivates and clicks on delete)
-// register_uninstall_hook(__FILE__, array($skelementorPlugin, 'deactivate')); //this works, but requires it to be a static method, so we have to prefix the functions with static, which is annoying
-//a better way is to create a separate file for uninstalls in this same directory.
