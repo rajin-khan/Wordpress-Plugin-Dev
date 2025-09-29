@@ -40,6 +40,10 @@ class SkelementorPlugin {
         add_action('init', array($this, 'custom_post_type'));
     }
 
+    function register() {
+        add_action('admin_enqueue_scripts', array($this, 'enqueue')); 
+        //if we need the css to load up in the frontend, not the backend, we use wp_enqueue_scripts instead. check by inspecting the network tab and seeing if you can find the css file.
+    }
 
     function activate() {
         $this -> custom_post_type();
@@ -58,10 +62,19 @@ class SkelementorPlugin {
     function custom_post_type() {
         register_post_type( 'book', ['public' => true, 'label' => 'Books']);
     }
+
+    // to store javascript and css and stuff, we have to call te enqueue function
+    function enqueue() {
+        // enqueue all our scripts, but the scripts must be stored in a separate folder.
+        wp_enqueue_style( 'mypluginstyle', plugins_url('/assets/mystyle.css', __FILE__));
+        //custom name of the style, the url for the folder relative to the plugin folder, the place where to start looking from, more options are there but optional
+         wp_enqueue_script( 'mypluginscript', plugins_url('/assets/myscript.js', __FILE__));
+    }
 }
 
 if ( class_exists('SkelementorPlugin')) {
     $skelementorPlugin = new SkelementorPlugin();
+    $skelementorPlugin -> register();
 }
 
 //on activation
