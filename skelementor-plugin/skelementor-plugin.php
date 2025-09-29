@@ -50,7 +50,7 @@ class SkelementorPlugin {
     //we can alternatively also call the activation/deactivation hook like this:
     function activate() {
         require_once plugin_dir_path( __FILE__).'inc/skelementor-plugin-activate.php';
-        SkelementorPlugin::activate();
+        SkelementorPluginActivate::activate();
     }
 
     function custom_post_type() {
