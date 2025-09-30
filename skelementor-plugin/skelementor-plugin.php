@@ -41,28 +41,18 @@ if (file_exists(dirname(__FILE__) . '/vendor/autoload.php')) {
 
 }
 
-// define constants
-define ('PLUGIN_PATH', plugin_dir_path(__FILE__));
-define ('PLUGIN_URL', plugin_dir_url(__FILE__));
-define ('PLUGIN', plugin_basename(__FILE__));
-
-use Inc\Base\Activate;
-use Inc\Base\Deactivate;
-
-
 // code that runs during plugin activation
 
 function activate_skelementor_plugin() {
-    Activate::activate();
+    Inc\Base\Activate::activate();
 }
+register_activation_hook(__FILE__, 'activate_skelementor_plugin');
 
 // code that runs during plugin deactivation
 
 function deactivate_skelementor_plugin() {
-    Deactivate::deactivate();
+    Inc\Base\Deactivate::deactivate();
 }
-
-register_activation_hook(__FILE__, 'activate_skelementor_plugin');
 register_deactivation_hook(__FILE__, 'deactivate_skelementor_plugin');
 
 if (class_exists('Inc\\Init')) {
