@@ -2,10 +2,9 @@
 /**
  * @package SkelementorPlugin
  */
+namespace Inc\Base;
 
-namespace Inc; //same as Activate
-
-class Deactivate { //rename the class and file both to Deactivate
+class Deactivate {
 
     public static function deactivate() {
         flush_rewrite_rules();
