@@ -33,40 +33,44 @@ Copyright 2005-2015 Automattic, Inc.
 
 defined('ABSPATH') or die('You shall not pass!');
 
-if (!class_exists('SkelementorPlugin')) { //making sure class isn't duplicated
+if (file_exists(dirname(__FILE__) . '/vendor/autoload.php')) { //this helps us load the file but just checking for the require_once check just one time.
+    require_once dirname(__FILE__) . '/vendor/autoload.php';
+
+}
+
+use Inc\Activate; //here, i'm using the namespace to refer to the activate class file, i don't have to manually take the trouble to include the file.
+use Inc\Deactivate; //same as the activate class file
+use Inc\Admin\AdminPages;
+//use backward slash here instead of forward slash
+
+if (!class_exists('SkelementorPlugin')) {
 
     class SkelementorPlugin {
 
-        public $plugin; //the var for dynamically holding the name of the plugin
+        public $plugin;
 
         function __construct() {
-            $this -> plugin = plugin_basename(__FILE__); //this grabs the name of the file dynamically
+            $this -> plugin = plugin_basename(__FILE__);
         }
 
-        function register() { //we define the things to do once the plugin activates because this is what's called initially whenever the class is created.
+        function register() {
             add_action('admin_enqueue_scripts', array($this, 'enqueue'));
-            add_action('admin_menu', array($this, 'add_admin_pages')); //creates the page in the sidebar
-
+            add_action('admin_menu', array($this, 'add_admin_pages'));
             add_filter("plugin_action_links_$this->plugin", array($this, 'settings_link'));
-            //the first arg is plugin_action_link_NAME-OF-PLUGIN, and it should be dynamic, so that if the file name changes it adapts automatically, so we use plugin_basename(__FILE__), stored in $plugin var
-            //now, in php, strings in single quotes can't use escape sequences or dynamically inject vars, but using double quotes, we can.
         }
 
         public function settings_link($links) {
             $settings_link = '<a href="admin.php?page=skelementor_plugin">Settings</a>'; //link to the page we want to be taken to
-            array_push($links, $settings_link); //push it to the list of links under the plugin name in the menu
-            return $links; //return the new list of links
+            array_push($links, $settings_link);
+            return $links;
         }
 
         public function add_admin_pages() {
             add_menu_page('Skelementor Plugin', 'Skelementor', 'manage_options', 'skelementor_plugin', array($this, 'admin_index'), 'dashicons-buddicons-topics', 110);
-            //so you have the arguments: page title, menu title, capabilities, unique menu slug (always with '_', no '-'), ...
-            //... callback function (what page needs to be created when this tab is clicked, maybe via a function), the icon url (include with plugins_url(__FILE__).'path', or by using the default icons included in wordpress for devs, called dashicons-nameoficon), ...
-            //... and the position of the link in the sidebar, bottom means 110
         }
 
         public function admin_index() {
-            require_once plugin_dir_path( __FILE__) . 'templates/admin.php'; //include the template file you wanna show when the plugin is clicked here
+            require_once plugin_dir_path( __FILE__) . 'templates/admin.php';
         }
 
         protected function create_post_type() {
@@ -74,9 +78,15 @@ if (!class_exists('SkelementorPlugin')) { //making sure class isn't duplicated
         }
 
         function activate() {
-            require_once plugin_dir_path( __FILE__) . 'inc/skelementor-plugin-activate.php';
-            SkelementorPluginActivate::activate();
+            // require_once plugin_dir_path( __FILE__) . 'inc/skelementor-plugin-activate.php'; //so now this can be commented out
+            Activate::activate(); //we can change the name of the class to just 'Activate' as it's what the class is named 
         }
+
+        function deactivate() {
+            Deactivate::deactivate(); //we can change the name of the class to just 'Deactivate' as it's what the class is named 
+            //calling the deactivate function the alternate way was causing errors, so it's called the same way that the activate function is called when using the namespace
+        }
+
 
         function custom_post_type() {
             register_post_type( 'book', ['public' => true, 'label' => 'Books']);
@@ -97,7 +107,12 @@ if (!class_exists('SkelementorPlugin')) { //making sure class isn't duplicated
     register_activation_hook(__FILE__, array($skelementorPlugin, 'activate'));
 
     //on deactivation
-    require_once plugin_dir_path( __FILE__).'inc/skelementor-plugin-deactivate.php';
-    register_deactivation_hook(__FILE__, array('SkelementorPluginDeactivate', 'deactivate'));
+    /* The commented line `//require_once plugin_dir_path(
+    __FILE__).'inc/skelementor-plugin-deactivate.php'; //this is not needed anymore` was previously
+    used to include a file named `skelementor-plugin-deactivate.php` for deactivating the plugin.
+    However, with the introduction of namespaces and restructuring the code, the direct inclusion of
+    this file is no longer necessary. */
+    // require_once plugin_dir_path( __FILE__).'inc/skelementor-plugin-deactivate.php'; //this is not needed anymore
+    register_deactivation_hook(__FILE__, array($skelementorPlugin, 'deactivate')); //we are calling the deactivate function the same way bc the prev way was causing errors.
 
 }

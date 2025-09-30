@@ -1,0 +1,19 @@
+{
+    "name": "rajin/skelementor-plugin",
+    "description": "Skelementor Plugin Beta",
+    "type": "project",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Rajin Khan",
+            "email": "rajin.khan2001@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Inc\\": "./inc"
+        }
+    }
+}
